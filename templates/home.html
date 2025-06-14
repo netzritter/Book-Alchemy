@@ -1,22 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Library Home</title>
+    <style>
+        .book {
+            margin-bottom: 20px;
+        }
+        img {
+            max-height: 200px;
+        }
+    </style>
 </head>
 <body>
     <h1>Library Catalog</h1>
 
+    <!-- Sort Dropdown -->
+    <form method="get" action="/">
+        <label for="sort_by">Sort by:</label>
+        <select name="sort_by" id="sort_by" onchange="this.form.submit()">
+            <option value="title" {% if sort_by == 'title' %}selected{% endif %}>Title</option>
+            <option value="author" {% if sort_by == 'author' %}selected{% endif %}>Author</option>
+        </select>
+    </form>
+
+    <hr>
+
     {% for book in books %}
         <div class="book">
-            <h2>{{ book.title }} by {{ book.author.name }}</h2>
-            <p>Published in {{ book.publication_year }}</p>
+            <h2>{{ book.title }}</h2>
+            <p><strong>Author:</strong> {{ book.author.name }}</p>
+            <p><strong>Year:</strong> {{ book.publication_year }}</p>
 
             {% if book.isbn %}
-                <img src="https://covers.openlibrary.org/b/isbn/{{ book.isbn }}-M.jpg" alt="Cover for {{ book.title }}">
+                <img src="https://covers.openlibrary.org/b/isbn/{{ book.isbn }}-M.jpg"
+                     alt="Cover for {{ book.title }}">
             {% else %}
-                <p>No cover image available</p>
+                <p><em>No cover image available</em></p>
             {% endif %}
         </div>
+        <hr>
     {% endfor %}
 </body>
 </html>

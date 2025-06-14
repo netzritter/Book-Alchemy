@@ -1,11 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from data_models import db, Author, Book
+import os
+
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/library.sqlite'
-db.init_app(app)
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+db_path = os.path.join(basedir, 'data', 'library.sqlite')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 
 @app.route('/add_author', methods=['GET', 'POST'])
 def add_author():
@@ -60,7 +63,15 @@ def add_book():
 
 @app.route('/')
 def home():
-    books = Book.query.all()  # This gets all Book records from the database
-    return render_template('home.html', books=books)  # 'books' is passed to Jinja
+    sort_by = request.args.get('sort_by', 'title')  # Default sort by title
+
+    if sort_by == 'author':
+        books = db.session.query(Book).join(Author).order_by(Author.name).all()
+    else:
+        books = db.session.query(Book).join(Author).order_by(Book.title).all()
+
+    return render_template('home.html', books=books, sort_by=sort_by)
+
+
 
 
