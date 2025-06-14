@@ -28,3 +28,31 @@ def add_author():
             flash(f'Error: {str(e)}', 'danger')
 
     return render_template('add_author.html')
+
+
+@app.route('/add_book', methods=['GET', 'POST'])
+def add_book():
+    authors = Author.query.all()
+
+    if request.method == 'POST':
+        title = request.form.get('title')
+        isbn = request.form.get('isbn')
+        publication_year = request.form.get('publication_year')
+        author_id = request.form.get('author_id')
+
+        try:
+            new_book = Book(
+                title=title,
+                isbn=isbn,
+                publication_year=int(publication_year),
+                author_id=int(author_id)
+            )
+            db.session.add(new_book)
+            db.session.commit()
+
+            flash('Book added successfully!', 'success')
+            return redirect(url_for('add_book'))
+        except Exception as e:
+            flash(f'Error: {str(e)}', 'danger')
+
+    return render_template('add_book.html', authors=authors)
