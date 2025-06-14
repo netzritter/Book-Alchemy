@@ -56,3 +56,11 @@ def add_book():
             flash(f'Error: {str(e)}', 'danger')
 
     return render_template('add_book.html', authors=authors)
+
+
+@app.route('/')
+def home():
+    books = Book.query.all()  # This gets all Book records from the database
+    return render_template('home.html', books=books)  # 'books' is passed to Jinja
+
+
