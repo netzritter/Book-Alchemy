@@ -1,10 +1,45 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Add Author</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+    <div class="header-container">
+        <h1>📚 Add New Author</h1>
 
+        <!-- Navigation Buttons -->
+        <div class="button-group">
+            <a href="{{ url_for('home') }}" class="btn">🏠 Home</a>
+            <a href="{{ url_for('add_book') }}" class="btn"><span class="plus">+</span> Add Book</a>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul>
+                    {% for category, message in messages %}
+                        <li style="color: {% if category == 'success' %}green{% else %}red{% endif %};">
+                            {{ message }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Add Author Form -->
+        <form method="POST" action="{{ url_for('add_author') }}" class="form-box">
+            <label for="name"><strong>Author Name:</strong></label><br>
+            <input type="text" name="name" id="name" required><br><br>
+
+            <label for="birth_date"><strong>Birth Date:</strong></label><br>
+            <input type="date" name="birth_date" id="birth_date" required><br><br>
+
+            <label for="date_of_death"><strong>Date of Death (optional):</strong></label><br>
+            <input type="date" name="date_of_death" id="date_of_death"><br><br>
+
+            <input type="submit" value="Add Author" class="btn">
+        </form>
+    </div>
 </body>
 </html>

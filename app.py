@@ -1,14 +1,35 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from datetime import datetime
 from data_models import db, Author, Book
+from sqlalchemy import or_
 import os
-
+import secrets
+import requests  # For Google Books API
 
 app = Flask(__name__)
+app.secret_key = secrets.token_hex(16)
 
+# Configure database
 basedir = os.path.abspath(os.path.dirname(__file__))
+os.makedirs(os.path.join(basedir, 'data'), exist_ok=True)
 db_path = os.path.join(basedir, 'data', 'library.sqlite')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db.init_app(app)
+
+# 🔍 Helper: Get cover from Google Books
+def get_google_cover_url(isbn):
+    try:
+        clean_isbn = isbn.replace('-', '')
+        url = f"https://www.googleapis.com/books/v1/volumes?q=isbn:{clean_isbn}"
+        response = requests.get(url)
+        data = response.json()
+        if 'items' in data:
+            return data['items'][0]['volumeInfo']['imageLinks']['thumbnail']
+    except Exception as e:
+        print(f"Failed to get cover for ISBN {isbn}: {e}")
+    return None
 
 @app.route('/add_author', methods=['GET', 'POST'])
 def add_author():
@@ -31,7 +52,6 @@ def add_author():
             flash(f'Error: {str(e)}', 'danger')
 
     return render_template('add_author.html')
-
 
 @app.route('/add_book', methods=['GET', 'POST'])
 def add_book():
@@ -60,18 +80,44 @@ def add_book():
 
     return render_template('add_book.html', authors=authors)
 
-
 @app.route('/')
 def home():
-    sort_by = request.args.get('sort_by', 'title')  # Default sort by title
+    sort_by = request.args.get('sort_by', 'title')
+    search = request.args.get('search', '').strip()
+
+    query = Book.query.join(Author)
+
+    if search:
+        query = query.filter(
+            or_(
+                Book.title.ilike(f"%{search}%"),
+                Author.name.ilike(f"%{search}%")
+            )
+        )
 
     if sort_by == 'author':
-        books = db.session.query(Book).join(Author).order_by(Author.name).all()
+        query = query.order_by(Author.name)
     else:
-        books = db.session.query(Book).join(Author).order_by(Book.title).all()
+        query = query.order_by(Book.title)
 
-    return render_template('home.html', books=books, sort_by=sort_by)
+    books = query.all()
 
+    # Add cover_url for each book using Google Books API
+    for book in books:
+        if book.isbn:
+            book.cover_url = get_google_cover_url(book.isbn)
+        else:
+            book.cover_url = None
+
+    return render_template('home.html', books=books, sort_by=sort_by, search=search)
+
+
+
+# ✅ Run the server
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True)
 
 
 

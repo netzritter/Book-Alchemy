@@ -1,16 +1,10 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-import os
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-db_path = os.path.join(basedir, 'data', 'library.sqlite')
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
+db = SQLAlchemy()
 
 class Author(db.Model):
     __tablename__ = 'authors'
@@ -41,6 +35,4 @@ class Book(db.Model):
     def __str__(self):
         return f"'{self.title}' by Author ID {self.author_id} ({self.publication_year})"
 
-# ✅ Run this ONCE to create the tables
-with app.app_context():
-    db.create_all()
+

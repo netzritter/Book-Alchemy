@@ -1,0 +1,83 @@
+* {
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+.header-container {
+  text-align: center;
+  margin-top: 40px;
+  margin-bottom: 30px;
+}
+
+.header-container h1 {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.header-container form {
+    margin-top: 20px;
+}
+
+body {
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 20px 0;
+    height: 100vh;
+}
+
+.button-group {
+    display: flex;
+    justify-content: center; /* Centers buttons horizontally */
+    gap: 20px;               /* Adds spacing between buttons */
+    margin-top: 20px;
+}
+
+.button-group .btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    text-decoration: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+}
+
+.button-group .btn .plus {
+    font-weight: bold;
+    color: white;
+    margin-right: 5px;
+}
+
+.book-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    padding: 20px 0;
+}
+
+.book-box {
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    padding: 20px;
+    border-radius: 8px;
+    width: 250px;
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.book-box:hover {
+    transform: scale(1.02);
+}
+
+.form-box {
+    background-color: #f9f9f9;
+    padding: 20px 30px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    max-width: 400px;
+    margin: 30px auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+

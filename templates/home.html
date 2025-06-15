@@ -1,45 +1,61 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
     <title>Library Home</title>
-    <style>
-        .book {
-            margin-bottom: 20px;
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+        function updateSearchPlaceholder() {
+            const sortBy = document.getElementById("sort_by").value;
+            const searchInput = document.getElementById("search");
+            searchInput.placeholder = sortBy === "author" ? "Author..." : "Book title...";
         }
-        img {
-            max-height: 200px;
-        }
-    </style>
+        window.onload = updateSearchPlaceholder;
+    </script>
 </head>
 <body>
-    <h1>Library Catalog</h1>
+    <div class="header-container">
+        <h1>📚 Book Collection</h1>
 
-    <!-- Sort Dropdown -->
-    <form method="get" action="/">
-        <label for="sort_by">Sort by:</label>
-        <select name="sort_by" id="sort_by" onchange="this.form.submit()">
-            <option value="title" {% if sort_by == 'title' %}selected{% endif %}>Title</option>
-            <option value="author" {% if sort_by == 'author' %}selected{% endif %}>Author</option>
-        </select>
-    </form>
-
-    <hr>
-
-    {% for book in books %}
-        <div class="book">
-            <h2>{{ book.title }}</h2>
-            <p><strong>Author:</strong> {{ book.author.name }}</p>
-            <p><strong>Year:</strong> {{ book.publication_year }}</p>
-
-            {% if book.isbn %}
-                <img src="https://covers.openlibrary.org/b/isbn/{{ book.isbn }}-M.jpg"
-                     alt="Cover for {{ book.title }}">
-            {% else %}
-                <p><em>No cover image available</em></p>
-            {% endif %}
+        <!-- Navigation Buttons -->
+        <div class="button-group">
+            <a href="{{ url_for('add_author') }}" class="btn"><span class="plus">+</span> Add Author</a>
+            <a href="{{ url_for('add_book') }}" class="btn"><span class="plus">+</span> Add Book</a>
         </div>
-        <hr>
-    {% endfor %}
+
+        <!-- Sort and Search Form -->
+        <form method="get" action="{{ url_for('home') }}">
+            <label for="search"><strong>Search:</strong></label>
+            <input type="text" name="search" id="search" placeholder="Book title..." value="{{ search or '' }}">
+
+            <label for="sort_by"><strong>Sort by:</strong></label>
+            <select name="sort_by" id="sort_by" onchange="this.form.submit()">
+                <option value="title" {% if sort_by == 'title' %}selected{% endif %}>Title</option>
+                <option value="author" {% if sort_by == 'author' %}selected{% endif %}>Author</option>
+            </select>
+
+            <button type="submit"><strong>Apply</strong></button>
+        </form>
+    </div>
+
+    {% if books %}
+        <div class="book-container">
+            {% for book in books %}
+                <div class="book-box">
+                    <h2>{{ book.title }}</h2>
+                    <p><strong>Author:</strong> {{ book.author.name }}</p>
+                    <p><strong>Year:</strong> {{ book.publication_year }}</p>
+                    <p><strong>ISBN:</strong> {{ book.isbn }}</p>
+
+                    {% if book.cover_url %}
+                        <img src="{{ book.cover_url }}" alt="Cover for {{ book.title }}" style="max-height: 150px;">
+                    {% else %}
+                        <p><em>No cover available.</em></p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p><em>No books found in the library.</em></p>
+    {% endif %}
 </body>
 </html>

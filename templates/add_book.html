@@ -1,10 +1,53 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Add Book</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+    <div class="header-container">
+        <h1>📘 Add New Book</h1>
 
+        <!-- Navigation Buttons -->
+        <div class="button-group">
+            <a href="{{ url_for('home') }}" class="btn">🏠 Home</a>
+            <a href="{{ url_for('add_author') }}" class="btn"><span class="plus">+</span> Add Author</a>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul>
+                    {% for category, message in messages %}
+                        <li style="color: {% if category == 'success' %}green{% else %}red{% endif %};">
+                            {{ message }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Add Book Form -->
+        <form method="POST" action="{{ url_for('add_book') }}" class="form-box">
+            <label for="title"><strong>Title:</strong></label><br>
+            <input type="text" name="title" id="title" required><br><br>
+
+            <label for="isbn"><strong>ISBN:</strong></label><br>
+            <input type="text" name="isbn" id="isbn" required><br><br>
+
+            <label for="publication_year"><strong>Publication Year:</strong></label><br>
+            <input type="number" name="publication_year" id="publication_year" required><br><br>
+
+            <label for="author_id"><strong>Author:</strong></label><br>
+            <select name="author_id" id="author_id" required>
+                <option value="">-- Select Author --</option>
+                {% for author in authors %}
+                    <option value="{{ author.id }}">{{ author.name }}</option>
+                {% endfor %}
+            </select><br><br>
+
+            <input type="submit" value="Add Book" class="btn">
+        </form>
+    </div>
 </body>
 </html>
