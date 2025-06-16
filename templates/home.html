@@ -1,64 +1,66 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Library Home</title>
+    <meta charset="UTF-8">
+    <title>Library</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script>
-        function updateSearchPlaceholder() {
-            const sortBy = document.getElementById("sort_by").value;
-            const searchInput = document.getElementById("search");
-            searchInput.placeholder = sortBy === "author" ? "Author..." : "Book title...";
-        }
-        window.onload = updateSearchPlaceholder;
-    </script>
 </head>
 <body>
-    <div class="header-container">
-        <h1>📚 Book Collection</h1>
 
-        <!-- Navigation Buttons -->
-        <div class="button-group">
-            <a href="{{ url_for('add_author') }}" class="btn"><span class="plus">+</span> Add Author</a>
-            <a href="{{ url_for('add_book') }}" class="btn"><span class="plus">+</span> Add Book</a>
+<div class="header-container">
+    <h1>My Library</h1>
+
+    <form method="get" action="{{ url_for('home') }}">
+        <input type="text" name="search" placeholder="Search by title or author..." value="{{ search }}">
+        <select name="sort_by">
+            <option value="title" {% if sort_by == 'title' %}selected{% endif %}>Sort by Title</option>
+            <option value="author" {% if sort_by == 'author' %}selected{% endif %}>Sort by Author</option>
+        </select>
+        <button type="submit" class="btn">Search</button>
+    </form>
+
+    <div class="button-group">
+        <a href="{{ url_for('add_book') }}" class="btn"><span class="plus">+</span> Add Book</a>
+        <a href="{{ url_for('add_author') }}" class="btn"><span class="plus">+</span> Add Author</a>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div style="text-align:center; margin-top:20px;">
+        {% for category, message in messages %}
+            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
         </div>
+    {% endif %}
+{% endwith %}
 
-        <!-- Sort and Search Form -->
-        <form method="get" action="{{ url_for('home') }}">
-            <label for="search"><strong>Search:</strong></label>
-            <input type="text" name="search" id="search" placeholder="Book title..." value="{{ search or '' }}">
+{% if books %}
+<div class="book-container">
+    {% for book in books %}
+    <div class="book-box">
+        <h3>{{ book.title }}</h3>
+        <p><strong>Author:</strong> {{ book.author.name }}</p>
+        <p><strong>Year:</strong> {{ book.publication_year }}</p>
+        {% if book.cover_url %}
+            <img src="{{ book.cover_url }}" alt="Cover" style="max-width: 100%; height: auto; margin-top: 10px;">
+        {% endif %}
 
-            <label for="sort_by"><strong>Sort by:</strong></label>
-            <select name="sort_by" id="sort_by" onchange="this.form.submit()">
-                <option value="title" {% if sort_by == 'title' %}selected{% endif %}>Title</option>
-                <option value="author" {% if sort_by == 'author' %}selected{% endif %}>Author</option>
-            </select>
-
-            <button type="submit"><strong>Apply</strong></button>
+        <!-- Delete Book Button -->
+        <form action="{{ url_for('delete_book', book_id=book.id) }}" method="POST" style="margin-top: 12px;">
+            <button type="submit" class="delete-button" onclick="return confirm('Are you sure you want to delete this book?');">
+                Delete Book
+            </button>
         </form>
     </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="no-books-message">
+    <p>No books found in the library.</p>
+</div>
+{% endif %}
 
-    {% if books %}
-        <div class="book-container">
-            {% for book in books %}
-                <div class="book-box">
-                    <h2>{{ book.title }}</h2>
-                    <p><strong>Author:</strong> {{ book.author.name }}</p>
-                    <p><strong>Year:</strong> {{ book.publication_year }}</p>
-                    <p><strong>ISBN:</strong> {{ book.isbn }}</p>
-
-                    {% if book.cover_url %}
-                        <img src="{{ book.cover_url }}" alt="Cover for {{ book.title }}" style="max-height: 150px;">
-                    {% else %}
-                        <p><em>No cover available.</em></p>
-                    {% endif %}
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="no-books-message">
-            <p><em>No books found in the library.</em></p>
-        </div>
-
-    {% endif %}
 </body>
 </html>

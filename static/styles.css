@@ -69,6 +69,22 @@ body {
 
 .book-box:hover {
     transform: scale(1.02);
+
+}
+
+.delete-button {
+    background-color: #dc3545; /* Bootstrap's danger red */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 12px;
+}
+
+.delete-button:hover {
+    background-color: #c82333;
 }
 
 .form-box {

@@ -112,6 +112,28 @@ def home():
     return render_template('home.html', books=books, sort_by=sort_by, search=search)
 
 
+@app.route('/book/<int:book_id>/delete', methods=['POST'])
+def delete_book(book_id):
+    book = Book.query.get_or_404(book_id)
+    author = book.author
+
+    try:
+        db.session.delete(book)
+        db.session.commit()
+
+        # Check if the author has any other books
+        remaining_books = Book.query.filter_by(author_id=author.id).count()
+        if remaining_books == 0:
+            db.session.delete(author)
+            db.session.commit()
+
+        flash(f'Book "{book.title}" was successfully deleted.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting book: {str(e)}', 'danger')
+
+    return redirect(url_for('home'))
+
 
 # ✅ Run the server
 if __name__ == '__main__':
