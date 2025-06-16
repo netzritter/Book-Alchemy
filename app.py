@@ -1,10 +1,14 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
-from datetime import datetime
-from data_models import db, Author, Book
-from sqlalchemy import or_
 import os
 import secrets
-import requests  # For Google Books API
+from datetime import datetime
+
+import requests
+from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+
+from flask import Flask, render_template, request, redirect, url_for, flash
+from data_models import db, Author, Book
+
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
@@ -48,8 +52,14 @@ def add_author():
 
             flash('Author added successfully!', 'success')
             return redirect(url_for('add_author'))
-        except Exception as e:
-            flash(f'Error: {str(e)}', 'danger')
+
+        except IntegrityError:
+            db.session.rollback()
+            flash('Failed to add author due to a database integrity constraint.', 'danger')
+
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            flash(f'Database error: {str(e)}', 'danger')
 
     return render_template('add_author.html')
 
@@ -128,9 +138,14 @@ def delete_book(book_id):
             db.session.commit()
 
         flash(f'Book "{book.title}" was successfully deleted.', 'success')
-    except Exception as e:
+
+    except IntegrityError as e:
         db.session.rollback()
-        flash(f'Error deleting book: {str(e)}', 'danger')
+        flash('Database integrity error while deleting the book.', 'danger')
+
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        flash(f'Database error: {str(e)}', 'danger')
 
     return redirect(url_for('home'))
 

@@ -28,8 +28,8 @@ body {
 
 .button-group {
     display: flex;
-    justify-content: center; /* Centers buttons horizontally */
-    gap: 20px;               /* Adds spacing between buttons */
+    justify-content: center;
+    gap: 20px;
     margin-top: 20px;
 }
 
@@ -73,7 +73,7 @@ body {
 }
 
 .delete-button {
-    background-color: #dc3545; /* Bootstrap's danger red */
+    background-color: #dc3545;
     color: white;
     border: none;
     border-radius: 5px;
